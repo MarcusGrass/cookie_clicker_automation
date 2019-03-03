@@ -1,0 +1,58 @@
+# user environment #
+.vscode
+
+# python specifics #
+**/__pycache__
+**/migrations
+/archived-templates
+
+# compiled output
+**/dist
+**/tmp
+**/out-tsc
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# dependencies
+**/node_modules
+
+# IDEs and editors
+/.idea
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# IDE - VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# misc
+/.sass-cache
+/connect.lock
+/coverage
+/libpeerconnection.log
+npm-debug.log
+yarn-error.log
+testem.log
+/typings
+/debug.py
+
+# System Files
+.DS_Store
+Thumbs.db
+
+# Machine learning models
+*.sav

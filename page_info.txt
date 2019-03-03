@@ -1,0 +1,5 @@
+Golden: div id = shimmers, class = shimmer
+Cookie count ids = game > sectionLeft > cookies (class=title) amount, div style=font-size:50%; => cps
+buffs: game > sectionLeft > buffs
+
+min-width:200px;text-align:center;font-size:11px;margin:8px 0px;
