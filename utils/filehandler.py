@@ -25,13 +25,20 @@ class SaveFileHandler(object):
         save_files = os.listdir(self.save_file_path)
         if len(save_files) == 0:
             raise FileNotFoundError("No savefiles present.")
-        tag_number = None
+        tag_numbers = list()
         for filename in save_files:
             try:
                 tag_number = int(re.sub("[^0-9]", "", filename))
+                if tag_number == 7:
+                    continue
+                tag_numbers.append(tag_number)
             except ValueError:
                 pass
-        return tag_number
+        if len(tag_numbers) == 0:
+            tag_numbers = None
+        else:
+            tag_numbers = max(tag_numbers)
+        return tag_numbers
 
 
 def get_file_name_from_number(number=None):
