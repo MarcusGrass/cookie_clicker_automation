@@ -1,10 +1,10 @@
 from selenium.webdriver.chrome.webdriver import WebDriver, Options
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.common.exceptions import NoSuchElementException, StaleElementReferenceException, \
-    ElementNotVisibleException
+    ElementNotVisibleException, WebDriverException
 
 import time
-
+import datetime
 from utils.filehandler import SaveFileHandler
 from utils.optimal_calculations import *
 
@@ -30,6 +30,9 @@ class CookieClickerAutomator(object):
         self.cps_compensator = 1
         self.next_is_clot = False
         self.mana = 0
+        self.golden_cookie_clicks = 0
+        self.last_save_time = datetime.datetime.now()
+        self.current_balance = None
 
     def __del__(self):
         self.driver.close()
@@ -38,11 +41,35 @@ class CookieClickerAutomator(object):
     def run(self):
         self.load_game()
         try:
-            while True:
-                time.sleep(1)
-                self.purchase_best_value_product()
-                self.click_shimmers_if_exists()
-                self.cast_spell_if_buffed()
+            num_tries = 0
+            max_tries = 10
+            while max_tries > num_tries:
+                try:
+                    time.sleep(1)
+                    self.close_popup_boxes()
+                    # self.purchase_best_value_product()
+                    self.click_shimmers_if_exists()
+                    self.cast_spell_if_buffed()
+                    if (datetime.datetime.now() - self.last_save_time).seconds > 300:
+                        time.sleep(0.2)
+                        self.save_game()
+                        time.sleep(0.2)
+                        file_handler = SaveFileHandler()
+                        file_handler.clean_up_directory()
+                    num_tries = 0
+                except WebDriverException as e:
+                    time.sleep(1)
+                    num_tries += 1
+                    self.close_popup_boxes()
+                    print("Severe exception: %s was raised" % e)
+                    time.sleep(1)
+                    if num_tries % 4 == 0:
+                        print("After four failed attempts reload is initialized.")
+                        self.save_game()
+                        time.sleep(1)
+                        self.load_game()
+                    continue
+
         except Exception:
             raise
         finally:
@@ -54,10 +81,12 @@ class CookieClickerAutomator(object):
             time.sleep(0.5)
             shimmer.click()
             time.sleep(0.5)
+            self.golden_cookie_clicks += 1
+            print("Clicked %s golden cookies so far." % self.golden_cookie_clicks)
         except NoSuchElementException:
             pass
 
-    def check_cookie_amount(self):
+    def set_current_balance(self):
         raw_text = str(repr(self.driver.find_element_by_id("cookies").text)).replace("'", "")
         divided_text = raw_text.split("\\n")
         total_number, total_multipler = tuple(divided_text[0].split(" "))
@@ -65,7 +94,12 @@ class CookieClickerAutomator(object):
 
         total_cps_number, total_cps_multiplier = tuple(divided_text[2].split(" ")[-2:])
         total_cps = translate_text_to_number(total_cps_number, total_cps_multiplier)
-        return CookieAmount(total_amount, total_cps)
+
+        buffs = self.check_buffs()
+        self.set_buff_multiplier(buffs)
+
+        compensated_cps = total_cps * self.cps_compensator
+        self.current_balance = CookieAmount(total_amount, compensated_cps)
 
     def cast_conjure_goods(self):
         self.close_popup_boxes()
@@ -104,10 +138,10 @@ class CookieClickerAutomator(object):
             if "clot" in buff:
                 frenzy_in_buffs = False
                 break
-        if frenzy_in_buffs:
+        if frenzy_in_buffs and self.next_is_clot is False:
             mana = self.check_mana()
             time.sleep(0.2)
-            if mana >= 4:
+            if mana >= 6:
                 self.save_game()
 
                 self.cast_conjure_goods()
@@ -117,11 +151,12 @@ class CookieClickerAutomator(object):
                     self.load_game()
                     self.next_is_clot = True
 
-        elif self.next_is_clot:
+        elif frenzy_in_buffs is False and self.next_is_clot:
             mana = self.check_mana()
             time.sleep(0.2)
-            if mana >= 4:
+            if mana >= 6:
                 self.cast_conjure_goods()
+                self.next_is_clot = False
         time.sleep(0.2)
 
     def check_buffs(self):
@@ -138,21 +173,20 @@ class CookieClickerAutomator(object):
                     "//div[@style='min-width:200px;text-align:center;font-size:11px;margin:8px 0px;']"
                 )
                 active_buffs.append(parse_buff_text(buff_info.text))
-            except StaleElementReferenceException:
-                pass
+            except Exception as e:
+                if isinstance(e, NoSuchElementException) or isinstance(e, StaleElementReferenceException):
+                    pass
 
         self.set_buff_multiplier(active_buffs)
         return active_buffs
 
     def set_buff_multiplier(self, buffs):
-        if "frenzy" in buffs and "clot" not in buffs:
+        if len(buffs) == 1 and "frenzy" in buffs and "clot" not in buffs:
             self.cps_compensator = 1/6
-        elif "frenzy" in buffs and "clot" in buffs:
+        elif len(buffs) == 2 and "frenzy" in buffs and "clot" in buffs:
             self.cps_compensator = 1/3
-        elif "clot" in buffs:
-            self.cps_compensator = 2
         else:
-            self.cps_compensator = 1
+            self.cps_compensator = 50
 
     def check_mana(self):
         self.close_popup_boxes()
@@ -179,13 +213,16 @@ class CookieClickerAutomator(object):
         return parse_mana_string(mana_text)
 
     def close_popup_boxes(self):
-        while True:
+        closable = self.driver.find_elements_by_class_name("close")
+        for element in closable:
+            time.sleep(0.1)
             try:
-                self.driver.find_element_by_class_name("close").click()
+                time.sleep(0.1)
+                element.click()
             except Exception as e:
                 if isinstance(e, StaleElementReferenceException) or isinstance(e, ElementNotVisibleException):
                     break
-            time.sleep(0.1)
+        time.sleep(0.1)
 
     def get_all_product_elements(self):
         time.sleep(0.5)
@@ -215,10 +252,11 @@ class CookieClickerAutomator(object):
                     num_cps = translate_text_to_number(clean_cps_list[0], clean_cps_list[1])
 
                     product_list.append(Product(num_cost, num_cps, element))
-                except StaleElementReferenceException:
-                    print("Failed to find element, try number: %s" % num_tries)
-                    time.sleep(0.1)
-                    num_tries += 1
+                except Exception as e:
+                    if isinstance(e, StaleElementReferenceException) or isinstance(e, NoSuchElementException):
+                        time.sleep(0.1)
+                        num_tries += 1
+                        continue
                 break
 
         return product_list
@@ -227,9 +265,9 @@ class CookieClickerAutomator(object):
         products = self.get_all_product_elements()
         time.sleep(1)
         best_value = get_best_value_product(products)
-
-        current_balance = self.check_cookie_amount()
-        if current_balance.amount > calculate_min_value_for_purchase(current_balance.cps, best_value.cost):
+        self.set_current_balance()
+        if self.current_balance.amount > calculate_min_value_for_purchase(
+                self.current_balance.cps, best_value.cost):
             best_value.element.click()
         time.sleep(2)
 
@@ -274,6 +312,8 @@ class CookieClickerAutomator(object):
             '//a[contains(@onclick,"Game.FileSave();PlaySound(\'snd/tick.mp3\');")]'
         )
         save_button.click()
+        self.prefs_button.click()
+        self.last_save_time = datetime.datetime.now()
         time.sleep(2)
 
 
@@ -332,7 +372,7 @@ def parse_buff_text(buff_text):
     elif "clot" in buff_text.lower():
         return "clot"
     else:
-        return None
+        return "unknown buff"
 
 
 if __name__ == "__main__":

@@ -40,6 +40,24 @@ class SaveFileHandler(object):
             tag_numbers = max(tag_numbers)
         return tag_numbers
 
+    def clean_up_directory(self):
+        save_files = os.listdir(self.save_file_path)
+        if len(save_files) > 80:
+            latest_file_number = self.get_higest_save_file_number()
+            file_name = get_file_name_from_number(latest_file_number)
+            files_to_keep = [
+                "BagoolBakery.txt",
+                "BagoolBakery (7).txt",
+                file_name,
+            ]
+            for file in save_files:
+                if file not in files_to_keep:
+                    os.remove(os.path.join(self.save_file_path, file))
+            os.rename(
+                os.path.join(self.save_file_path, file_name),
+                os.path.join(self.save_file_path, "BagoolBakery (1).txt")
+            )
+
 
 def get_file_name_from_number(number=None):
     if number is None:
@@ -51,5 +69,5 @@ def get_file_name_from_number(number=None):
 if __name__ == "__main__":
     sfh = SaveFileHandler()
 
-    print(sfh.get_latest_save_file_name())
+    sfh.clean_up_directory()
     del sfh
