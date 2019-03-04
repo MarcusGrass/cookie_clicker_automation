@@ -17,12 +17,5 @@ def calculate_min_value_for_purchase(current_cps, purchase_cost):
     return purchase_cost + get_min_amount_to_cps(current_cps)
 
 
-class Product(object):
-    def __init__(self, cost, cps, element):
-        self.cost = cost
-        self.cps = cps
-        self.element = element
-
-
 if __name__ == "__main__":
     pass

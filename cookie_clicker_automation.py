@@ -7,6 +7,9 @@ import time
 import datetime
 from utils.filehandler import SaveFileHandler
 from utils.optimal_calculations import *
+from utils.parsing import *
+from utils.dto import *
+from purchase_manager import PurchaseManager
 
 URL = "http://orteil.dashnet.org/cookieclicker/"
 CONSENT_COOKIE = {
@@ -47,7 +50,7 @@ class CookieClickerAutomator(object):
                 try:
                     time.sleep(1)
                     self.close_popup_boxes()
-                    # self.purchase_best_value_product()
+                    self.purchase_best_value_product()
                     self.click_shimmers_if_exists()
                     self.cast_spell_if_buffed()
                     if (datetime.datetime.now() - self.last_save_time).seconds > 300:
@@ -227,7 +230,7 @@ class CookieClickerAutomator(object):
     def get_all_product_elements(self):
         time.sleep(0.5)
         product_elements = self.driver.find_elements_by_css_selector(".product.unlocked.enabled")
-        interesting_elements = product_elements[-3:]
+        interesting_elements = product_elements[-5:]
 
         product_list = list()
         max_tries = 10
@@ -251,15 +254,20 @@ class CookieClickerAutomator(object):
                     clean_cps_list = parse_product_cps(raw_cps_string).split(" ")
                     num_cps = translate_text_to_number(clean_cps_list[0], clean_cps_list[1])
 
+                    print(raw_cost, raw_cps_string)
                     product_list.append(Product(num_cost, num_cps, element))
                 except Exception as e:
                     if isinstance(e, StaleElementReferenceException) or isinstance(e, NoSuchElementException):
+
                         time.sleep(0.1)
                         num_tries += 1
                         continue
                 break
 
         return product_list
+
+    def get_upgrade_elements(self):
+        pass
 
     def purchase_best_value_product(self):
         products = self.get_all_product_elements()
@@ -282,8 +290,12 @@ class CookieClickerAutomator(object):
         self.gamestate_file = file_handler.get_latest_save_file_name()
         print("Loaded gamestate file: %s" % self.gamestate_file)
 
-    def load_game(self):
-        self.get_gamestate_file()
+    def load_game(self, custom_file=False):
+        if custom_file:
+            self.gamestate_file = custom_file
+            print("Loaded custom file: %s" % custom_file)
+        else:
+            self.get_gamestate_file()
 
         self.driver.get(URL)
 
@@ -315,64 +327,6 @@ class CookieClickerAutomator(object):
         self.prefs_button.click()
         self.last_save_time = datetime.datetime.now()
         time.sleep(2)
-
-
-class CookieAmount(object):
-    def __init__(self, amount, cps):
-        self.amount = amount
-        self.cps = cps
-
-
-def translate_text_to_number(number, text):
-    number = float(number)
-    multiplier = translate_word_to_multiplier(text)
-    return number*multiplier
-
-
-def translate_word_to_multiplier(text):
-    multiplier = 1
-    if text == "million":
-        multiplier = 1e+6
-    elif text == "billion":
-        multiplier = 1e+9
-    elif text == "trillion":
-        multiplier = 1e+12
-    elif text == "quadrillion":
-        multiplier = 1e+15
-    elif text == "quintillion":
-        multiplier = 1e+18
-    elif text == "sextillion":
-        multiplier = 1e+21
-    elif text == "septillion":
-        multiplier = 1e+24
-    elif text == "octillion":
-        multiplier = 1e+27
-    elif text == "nonillion":
-        multiplier = 1e+30
-
-    return multiplier
-
-
-def parse_product_cps(hover_string):
-    interesting_string = hover_string.split("\\n")[0]
-    start_ind = interesting_string.find("produces") + len("produces")
-    end_ind = interesting_string.find("cookies")
-    return interesting_string[start_ind+1: end_ind-1]
-
-
-def parse_mana_string(mana_string):
-    return int(mana_string[0])
-
-
-def parse_buff_text(buff_text):
-    if "Frenzy" in buff_text and "x7" in buff_text:
-        return "frenzy"
-    elif "click frenzy" in buff_text.lower():
-        return "click frenzy"
-    elif "clot" in buff_text.lower():
-        return "clot"
-    else:
-        return "unknown buff"
 
 
 if __name__ == "__main__":

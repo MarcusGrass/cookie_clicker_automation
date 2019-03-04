@@ -8,18 +8,22 @@ class ElementReadingTests(unittest.TestCase):
     def setUpClass(cls):
         super(ElementReadingTests, cls).setUpClass()
         cls.automator = CookieClickerAutomator()
-        cls.automator.gamestate_file = "D:\\Program\\PycharmProjects\\seleniumtest\\save_files\\BagoolBakery (7).txt"
-        cls.automator.load_game()
+        gamestate_file = "D:\\Program\\PycharmProjects\\seleniumtest\\save_files\\BagoolBakery (7).txt"
+        cls.automator.load_game(custom_file=gamestate_file)
 
     @classmethod
     def tearDownClass(cls):
         del cls.automator
 
     def test_checking_values(self):
-        cookie_amount = self.automator.check_cookie_amount()
+        self.automator.set_current_balance()
+        cookie_amount = self.automator.current_balance
 
-        self.assertTrue(6.7*10e18 < cookie_amount.amount < 6.8*10e18)
-        self.assertTrue(31*10e12 < cookie_amount.cps < 33*10e12)
+        self.assertTrue(67*1e+18 < cookie_amount.amount < 68*1e+18)
+        print()
+        print("CPS: ", cookie_amount.cps)
+        print("CPS COMPENSATOR: ", self.automator.cps_compensator)
+        self.assertTrue(310*1e+12 < cookie_amount.cps < 330*1e+12)
 
     def test_getting_product(self):
         elements = self.automator.get_all_product_elements()
@@ -30,9 +34,9 @@ class ElementReadingTests(unittest.TestCase):
                 self.assertTrue(2400000000000 < element.cps < 2800000000000)
             elif 4.9*1e+16 < element.cost < 5.4*1e+16:
                 self.assertTrue(150000000000.0 < element.cps < 160000000000.0)
-            else:
-                print(element.cps, element.cost)
-                raise ValueError
+
+    def test_getting_upgrades(self):
+        pass
 
 
 if __name__ == "__main__":
