@@ -5,12 +5,14 @@ from selenium.common.exceptions import NoSuchElementException, StaleElementRefer
 
 import time
 import datetime
+import re
+
 from utils.filehandler import SaveFileHandler
-from utils.optimal_calculations import *
 from utils.parsing import *
 from utils.dto import *
 from purchase_manager import PurchaseManager
-
+from garden_manager import GardenManager
+from time_coordinator import TimeCoordinator
 URL = "http://orteil.dashnet.org/cookieclicker/"
 CONSENT_COOKIE = {
     "name": "cookieconsent_dismissed",
@@ -36,6 +38,11 @@ class CookieClickerAutomator(object):
         self.golden_cookie_clicks = 0
         self.last_save_time = datetime.datetime.now()
         self.current_balance = None
+        self.ascension_number = 0
+        self.buffs = list()
+        self.bought_this_run = list()
+
+        self.time_coordinator = TimeCoordinator()
 
     def __del__(self):
         self.driver.close()
@@ -48,17 +55,41 @@ class CookieClickerAutomator(object):
             max_tries = 10
             while max_tries > num_tries:
                 try:
-                    time.sleep(1)
+                    time.sleep(0.6)
+                    self.click_shimmers_if_exists()
                     self.close_popup_boxes()
+                    self.click_shimmers_if_exists()
                     self.purchase_best_value_product()
                     self.click_shimmers_if_exists()
                     self.cast_spell_if_buffed()
-                    if (datetime.datetime.now() - self.last_save_time).seconds > 300:
-                        time.sleep(0.2)
+                    self.click_shimmers_if_exists()
+                    if self.time_coordinator.time_to_save():
+                        time.sleep(0.1)
                         self.save_game()
+                        self.time_coordinator.last_save_time = datetime.datetime.now()
                         time.sleep(0.2)
                         file_handler = SaveFileHandler()
                         file_handler.clean_up_directory()
+                    elif self.time_coordinator.time_to_plant_seeds():
+                        self.close_popup_boxes()
+                        garden_manager = GardenManager(self.driver)
+                        garden_manager.manage_garden()
+                        del garden_manager
+                        self.time_coordinator.last_garden_plant_time = datetime.datetime.now()
+
+                    elif self.time_coordinator.time_to_log_economy():
+                        self.check_ascension_levels()
+                        print()
+                        print("%s:" % datetime.datetime.now())
+                        print("Golden cookies/reindeer clicked this run: %s" % self.golden_cookie_clicks)
+                        print("Current bank: %s" % self.current_balance.amount)
+                        print("Current compensated cps: %s (with active buffs: %s)" %
+                              (self.current_balance.cps, self.buffs))
+                        print("Current heavenly chips: %s" % self.ascension_number)
+                        print("Bought %s this pass." % self.bought_this_run)
+                        print()
+                        self.bought_this_run = list()
+                        self.time_coordinator.last_economy_report = datetime.datetime.now()
                     num_tries = 0
                 except WebDriverException as e:
                     time.sleep(1)
@@ -68,7 +99,10 @@ class CookieClickerAutomator(object):
                     time.sleep(1)
                     if num_tries % 4 == 0:
                         print("After four failed attempts reload is initialized.")
-                        self.save_game()
+                        try:
+                            self.save_game()
+                        except Exception as e:
+                            print("Failed to save,reloading anyway, exception: %s" % e)
                         time.sleep(1)
                         self.load_game()
                     continue
@@ -80,12 +114,12 @@ class CookieClickerAutomator(object):
 
     def click_shimmers_if_exists(self):
         try:
-            shimmer = self.driver.find_element_by_class_name("shimmer")
-            time.sleep(0.5)
-            shimmer.click()
-            time.sleep(0.5)
-            self.golden_cookie_clicks += 1
-            print("Clicked %s golden cookies so far." % self.golden_cookie_clicks)
+            shimmers = self.driver.find_elements_by_class_name("shimmer")
+            for element in shimmers:
+                time.sleep(0.05)
+                element.click()
+                time.sleep(0.2)
+                self.golden_cookie_clicks += 1
         except NoSuchElementException:
             pass
 
@@ -93,10 +127,16 @@ class CookieClickerAutomator(object):
         raw_text = str(repr(self.driver.find_element_by_id("cookies").text)).replace("'", "")
         divided_text = raw_text.split("\\n")
         total_number, total_multipler = tuple(divided_text[0].split(" "))
-        total_amount = translate_text_to_number(total_number, total_multipler)
+        try:
+            total_amount = translate_text_to_number(total_number, total_multipler)
+        except ValueError:
+            total_amount = float(total_multipler.replace(" ", "").replace(":", "").replace(",", ""))
 
         total_cps_number, total_cps_multiplier = tuple(divided_text[2].split(" ")[-2:])
-        total_cps = translate_text_to_number(total_cps_number, total_cps_multiplier)
+        try:
+            total_cps = translate_text_to_number(total_cps_number, total_cps_multiplier)
+        except ValueError:
+            total_cps = float(total_cps_multiplier.replace(" ", "").replace(":", "").replace(",", ""))
 
         buffs = self.check_buffs()
         self.set_buff_multiplier(buffs)
@@ -160,6 +200,7 @@ class CookieClickerAutomator(object):
             if mana >= 6:
                 self.cast_conjure_goods()
                 self.next_is_clot = False
+                self.close_popup_boxes()
         time.sleep(0.2)
 
     def check_buffs(self):
@@ -181,10 +222,13 @@ class CookieClickerAutomator(object):
                     pass
 
         self.set_buff_multiplier(active_buffs)
+        self.buffs = active_buffs
         return active_buffs
 
     def set_buff_multiplier(self, buffs):
-        if len(buffs) == 1 and "frenzy" in buffs and "clot" not in buffs:
+        if len(buffs) == 0:
+            self.cps_compensator = 1
+        elif len(buffs) == 1 and "frenzy" in buffs and "clot" not in buffs:
             self.cps_compensator = 1/6
         elif len(buffs) == 2 and "frenzy" in buffs and "clot" in buffs:
             self.cps_compensator = 1/3
@@ -227,57 +271,16 @@ class CookieClickerAutomator(object):
                     break
         time.sleep(0.1)
 
-    def get_all_product_elements(self):
-        time.sleep(0.5)
-        product_elements = self.driver.find_elements_by_css_selector(".product.unlocked.enabled")
-        interesting_elements = product_elements[-5:]
-
-        product_list = list()
-        max_tries = 10
-        num_tries = 0
-        for element in interesting_elements:
-            while num_tries < max_tries:
-                try:
-                    time.sleep(0.1)
-                    action = ActionChains(self.driver)
-                    action.move_to_element(self.driver.find_element_by_id("bigCookie"))
-                    time.sleep(0.05)
-                    action.move_to_element(element)
-                    time.sleep(0.1)
-                    action.perform()
-
-                    raw_cost = self.driver.find_element_by_xpath("//div[@style='float:right;text-align:right;']").text
-                    raw_cost_list = raw_cost.split(" ")
-                    num_cost = translate_text_to_number(raw_cost_list[0], raw_cost_list[1])
-
-                    raw_cps_string = repr(self.driver.find_element_by_class_name("data").text)
-                    clean_cps_list = parse_product_cps(raw_cps_string).split(" ")
-                    num_cps = translate_text_to_number(clean_cps_list[0], clean_cps_list[1])
-
-                    print(raw_cost, raw_cps_string)
-                    product_list.append(Product(num_cost, num_cps, element))
-                except Exception as e:
-                    if isinstance(e, StaleElementReferenceException) or isinstance(e, NoSuchElementException):
-
-                        time.sleep(0.1)
-                        num_tries += 1
-                        continue
-                break
-
-        return product_list
-
-    def get_upgrade_elements(self):
-        pass
-
     def purchase_best_value_product(self):
-        products = self.get_all_product_elements()
-        time.sleep(1)
-        best_value = get_best_value_product(products)
+        time.sleep(0.5)
         self.set_current_balance()
-        if self.current_balance.amount > calculate_min_value_for_purchase(
-                self.current_balance.cps, best_value.cost):
-            best_value.element.click()
-        time.sleep(2)
+        purchase_manager = PurchaseManager(self.driver, self.current_balance)
+        bought_item = purchase_manager.purchase_best_value_option()
+        if bought_item != "":
+            self.bought_this_run.append(bought_item)
+        del purchase_manager
+        self.move_to_neutral_element()
+        time.sleep(0.2)
 
     def move_to_neutral_element(self):
         action = ActionChains(self.driver)
@@ -289,6 +292,10 @@ class CookieClickerAutomator(object):
         file_handler = SaveFileHandler()
         self.gamestate_file = file_handler.get_latest_save_file_name()
         print("Loaded gamestate file: %s" % self.gamestate_file)
+
+    def check_ascension_levels(self):
+        ascension_text = self.driver.find_element_by_xpath("//div[@id='ascendNumber']").text
+        self.ascension_number = re.sub("[^0-9]", "", ascension_text)
 
     def load_game(self, custom_file=False):
         if custom_file:
@@ -325,8 +332,7 @@ class CookieClickerAutomator(object):
         )
         save_button.click()
         self.prefs_button.click()
-        self.last_save_time = datetime.datetime.now()
-        time.sleep(2)
+        time.sleep(1)
 
 
 if __name__ == "__main__":

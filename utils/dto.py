@@ -9,3 +9,19 @@ class Product(object):
         self.cost = cost
         self.cps = cps
         self.element = element
+
+
+class Building(object):
+    def __init__(self, name, cost, cps, element):
+        self.name = name
+        self.cost = cost
+        self.cps = cps
+        self.element = element
+
+
+class Upgrade(object):
+    def __init__(self, upgrade_type, cost, element):
+        self.upgrade_type = upgrade_type
+        self.cost = cost
+        self.cps = None
+        self.element = element

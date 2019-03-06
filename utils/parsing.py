@@ -28,11 +28,46 @@ def translate_word_to_multiplier(text):
     return multiplier
 
 
-def parse_product_cps(hover_string):
-    interesting_string = hover_string.split("\\n")[0]
+def parse_product_cost(cost_string):
+    try:
+        raw_cost_list = cost_string.split(" ")
+        num_cost = translate_text_to_number(raw_cost_list[0], raw_cost_list[1])
+    except IndexError:
+        num_cost = float(cost_string.replace(",", "").replace(" ", ""))
+    return num_cost
+
+
+def parse_product_cps(cps_string):
+    reproduced = repr(cps_string)
+    interesting_string = reproduced.split("\\n")[0]
     start_ind = interesting_string.find("produces") + len("produces")
     end_ind = interesting_string.find("cookies")
-    return interesting_string[start_ind+1: end_ind-1]
+    cps = interesting_string[start_ind+1: end_ind-1]
+    split_cps = cps.split(" ")
+    num_cps = translate_text_to_number(split_cps[0], split_cps[1])
+    return num_cps
+
+
+def parse_product_name(name_string):
+    reproduced = repr(name_string)
+    reproduced = reproduced.replace("'", "")
+    reproduced = reproduced.lower()
+    return reproduced
+
+
+def parse_upgrade_description(description_string):
+    cleaner = repr(description_string).replace("'", "").split("\\n")[0].lower().replace('"', "")
+    if "twice" in cleaner:
+        end_index = cleaner.find("are") - 1
+        return cleaner[:end_index]
+    elif "cookie production multiplier" in cleaner:
+        start_index = cleaner.find("+") + 1
+        end_index = cleaner.find(".") - 1
+        return float("0.0" + cleaner[start_index: end_index])
+    elif "the more milk you have" in cleaner:
+        return "kitten"
+    else:
+        return "unknown upgrade"
 
 
 def parse_mana_string(mana_string):
