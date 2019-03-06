@@ -6,6 +6,7 @@ from selenium.common.exceptions import NoSuchElementException, StaleElementRefer
 import time
 import datetime
 import re
+import logging
 
 from utils.filehandler import SaveFileHandler
 from utils.parsing import *
@@ -43,6 +44,8 @@ class CookieClickerAutomator(object):
         self.bought_this_run = list()
 
         self.time_coordinator = TimeCoordinator()
+        logging.basicConfig(filename='D:\\Program\\PycharmProjects\\seleniumtest\\logs\\cookieclicker.log',
+                            level=logging.INFO)
 
     def __del__(self):
         self.driver.close()
@@ -82,12 +85,19 @@ class CookieClickerAutomator(object):
                         print()
                         print("%s:" % datetime.datetime.now())
                         print("Golden cookies/reindeer clicked this run: %s" % self.golden_cookie_clicks)
-                        print("Current bank: %s" % self.current_balance.amount)
-                        print("Current compensated cps: %s (with active buffs: %s)" %
+                        print("Current bank: %.2f" % self.current_balance.amount)
+                        print("Current compensated cps: %.2f (with active buffs: %s)" %
                               (self.current_balance.cps, self.buffs))
                         print("Current heavenly chips: %s" % self.ascension_number)
                         print("Bought %s this pass." % self.bought_this_run)
                         print()
+                        logging.info("\n%s: \nGolden cookies/reinder clicked this run: %s\n"
+                                     "Current bank: %.2f\nCurrent compensated cps: %.2f (with active buffs: %s)\n"
+                                     "Current heavenly chips: %s"
+                                     "Bough %s this pass.\n" % (datetime.datetime.now(), self.golden_cookie_clicks,
+                                                                self.current_balance.amount,
+                                                                self.current_balance.cps, self.buffs,
+                                                                self.ascension_number, self.bought_this_run))
                         self.bought_this_run = list()
                         self.time_coordinator.last_economy_report = datetime.datetime.now()
                     num_tries = 0
@@ -95,14 +105,14 @@ class CookieClickerAutomator(object):
                     time.sleep(1)
                     num_tries += 1
                     self.close_popup_boxes()
-                    print("Severe exception: %s was raised" % e)
+                    logging.critical("Severe exception: %s was raised" % e)
                     time.sleep(1)
                     if num_tries % 4 == 0:
-                        print("After four failed attempts reload is initialized.")
+                        logging.critical("After four failed attempts reload is initialized.")
                         try:
                             self.save_game()
                         except Exception as e:
-                            print("Failed to save,reloading anyway, exception: %s" % e)
+                            logging.critical("Failed to save,reloading anyway, exception: %s" % e)
                         time.sleep(1)
                         self.load_game()
                     continue

@@ -1,0 +1,183 @@
+INFO:root:Doing a garden check at time: 2019-03-06 20:04:20.814436
+INFO:root:Garden manager found 24 garden tiles.
+INFO:root:Garden manager found %s available plots for planting new seeds.
+INFO:root:
+ 2019-03-06 20:04:39.091460: 
+Golden cookies/reinder clicked this run: 4.17803e+26
+Current bank: 3.7788333333333326e+21
+Current compensated cps: ['frenzy'] (with active buffs: 14458)
+Bough ['Building: chancemaker.', 'Building: prism.'] this pass.
+
+INFO:root:Doing a garden check at time: 2019-03-06 20:06:34.045465
+CRITICAL:root:Severe exception: Message: unknown error: Element <div id="productMinigameButton2" class="productButton productMinigameButton lumpsOnly" onclick="Game.ObjectsById[2].switchMinigame(-1);PlaySound(Game.ObjectsById[2].onMinigame?'snd/clickOn.mp3':'snd/clickOff.mp3');" style="display: block;">...</div> is not clickable at point (560, 153). Other element would receive the click: <div id="commentsText" class="commentsText risingUp">...</div>
+  (Session info: chrome=72.0.3626.119)
+  (Driver info: chromedriver=2.46.628402 (536cd7adbad73a3783fdc2cab92ab2ba7ec361e1),platform=Windows NT 10.0.17134 x86_64)
+ was raised
+INFO:root:Doing a garden check at time: 2019-03-06 20:06:51.063585
+INFO:root:Garden manager found 24 garden tiles.
+INFO:root:Garden manager found %s available plots for planting new seeds.
+INFO:root:
+2019-03-06 20:07:05.839834: 
+Golden cookies/reinder clicked this run: 4.1833699999999995e+26
+Current bank: 3.24e+21
+Current compensated cps: [] (with active buffs: 14466)
+Bough ['Building: chancemaker.', 'Building: prism.', 'Building: time machine.'] this pass.
+
+INFO:root:
+2019-03-06 20:12:08.617927: 
+Golden cookies/reinder clicked this run: 4.85228e+26
+Current bank: 3.392e+21
+Current compensated cps: [] (with active buffs: 16395)
+Bough ['Building: antimatter condenser.', 'Building: fractal engine.', 'Building: chancemaker.', 'Building: prism.', 'Building: time machine.', 'Building: antimatter condenser.', 'Building: fractal engine.', 'Building: chancemaker.', 'Building: prism.', 'Building: time machine.', 'Building: antimatter condenser.', 'Building: fractal engine.', 'Building: chancemaker.', 'Building: prism.', 'Building: time machine.', 'Building: antimatter condenser.', 'Building: fractal engine.', 'Building: chancemaker.', 'Building: prism.', 'Building: time machine.', 'Building: antimatter condenser.', 'Building: fractal engine.', 'Building: chancemaker.'] this pass.
+
+INFO:root:Found cheap upgrade element with text: 
+its cost was 9310000000000000020971520.00 and the current cps was 3736800000000000411041792.00
+INFO:root:Found cheap upgrade element with text: 
+its cost was 9310000000000000020971520.00 and the current cps was 3736800000000000411041792.00
+INFO:root:Found cheap upgrade element with text: 
+its cost was 9310000000000000020971520.00 and the current cps was 3736800000000000411041792.00
+INFO:root:Purchase manager found best value to be upgrade 0.04.
+With a cost of 4.6549999999999995e+25 and a current max balance of 5.50526e+26 and max cps 3.7368000000000004e+24 it was not worth the cost.
+INFO:root:Found cheap upgrade element with text: 
+its cost was 9310000000000000020971520.00 and the current cps was 3848899999999999722127360.00
+INFO:root:Found cheap upgrade element with text: 
+its cost was 9310000000000000020971520.00 and the current cps was 3848899999999999722127360.00
+INFO:root:Purchase manager found best value to be upgrade 0.04.
+With a cost of 4.6549999999999995e+25 and a current max balance of 5.4224499999999996e+26 and max cps 3.8488999999999997e+24 it was not worth the cost.
+INFO:root:Doing a garden check at time: 2019-03-06 20:17:08.139005
+CRITICAL:root:Severe exception: Message: unknown error: Element <div id="productMinigameButton2" class="productButton productMinigameButton lumpsOnly" onclick="Game.ObjectsById[2].switchMinigame(-1);PlaySound(Game.ObjectsById[2].onMinigame?'snd/clickOn.mp3':'snd/clickOff.mp3');" style="display: block;">...</div> is not clickable at point (560, 223). Other element would receive the click: <div id="commentsText" class="commentsText risingUp">...</div>
+  (Session info: chrome=72.0.3626.119)
+  (Driver info: chromedriver=2.46.628402 (536cd7adbad73a3783fdc2cab92ab2ba7ec361e1),platform=Windows NT 10.0.17134 x86_64)
+ was raised
+INFO:root:Found cheap upgrade element with text: 
+its cost was 9310000000000000020971520.00 and the current cps was 4002849999999999810732032.00
+INFO:root:Purchase manager found best value to be upgrade 0.04.
+With a cost of 4.6549999999999995e+25 and a current max balance of 5.3420399999999995e+26 and max cps 4.00285e+24 it was not worth the cost.
+INFO:root:Doing a garden check at time: 2019-03-06 20:17:23.061140
+INFO:root:Garden manager found 24 garden tiles.
+INFO:root:Garden manager found %s available plots for planting new seeds.
+INFO:root:Purchase manager found best value to be upgrade 0.04.
+With a cost of 4.6549999999999995e+25 and a current max balance of 5.26101e+26 and max cps 4.1629499999999997e+24 it was not worth the cost.
+INFO:root:
+2019-03-06 20:17:36.391091: 
+Golden cookies/reinder clicked this run: 5.26101e+26
+Current bank: 4.1629499999999997e+24
+Current compensated cps: ['unknown buff'] (with active buffs: 18481)
+Bough ['Building: prism.', 'Building: time machine.', 'Building: antimatter condenser.', 'Building: fractal engine.', 'Building: chancemaker.', 'Building: prism.', 'Building: time machine.', 'Building: antimatter condenser.', 'Building: fractal engine.', 'Building: chancemaker.', 'Building: prism.', 'Building: time machine.', 'Building: antimatter condenser.', 'Building: fractal engine.', 'Upgrade: fractal engines.', 'Building: fractal engine.', 'Building: fractal engine.', 'Building: fractal engine.', 'Building: fractal engine.'] this pass.
+
+INFO:root:Purchase manager found best value to be upgrade 0.04.
+With a cost of 4.6549999999999995e+25 and a current max balance of 5.269729999999999e+26 and max cps 4.1629499999999997e+24 it was not worth the cost.
+INFO:root:Purchase manager found best value to be building fractal engine.
+With a cost of 1.443e+24 and a current max balance of 5.27694e+26 and max cps 6.938e+21 it was not worth the cost.
+INFO:root:Purchase manager found best value to be building fractal engine.
+With a cost of 1.443e+24 and a current max balance of 5.27764e+26 and max cps 6.938e+21 it was not worth the cost.
+INFO:root:Purchase manager found best value to be building fractal engine.
+With a cost of 1.443e+24 and a current max balance of 5.27831e+26 and max cps 6.938e+21 it was not worth the cost.
+INFO:root:Purchase manager found best value to be building fractal engine.
+With a cost of 1.443e+24 and a current max balance of 5.2789800000000005e+26 and max cps 6.938e+21 it was not worth the cost.
+INFO:root:Purchase manager found best value to be building fractal engine.
+With a cost of 1.443e+24 and a current max balance of 5.27964e+26 and max cps 6.938e+21 it was not worth the cost.
+INFO:root:Purchase manager found best value to be building fractal engine.
+With a cost of 1.443e+24 and a current max balance of 5.2803200000000003e+26 and max cps 6.938e+21 it was not worth the cost.
+INFO:root:Purchase manager found best value to be building fractal engine.
+With a cost of 1.443e+24 and a current max balance of 5.2892899999999996e+26 and max cps 6.938e+21 it was not worth the cost.
+INFO:root:Purchase manager found best value to be building fractal engine.
+With a cost of 1.443e+24 and a current max balance of 5.292329999999999e+26 and max cps 8.094666666666665e+21 it was not worth the cost.
+INFO:root:Purchase manager found best value to be building fractal engine.
+With a cost of 1.443e+24 and a current max balance of 5.2983000000000006e+26 and max cps 8.094666666666665e+21 it was not worth the cost.
+INFO:root:Purchase manager found best value to be building fractal engine.
+With a cost of 1.443e+24 and a current max balance of 6.10462e+26 and max cps 8.094666666666665e+21 it was not worth the cost.
+INFO:root:Purchase manager found best value to be building fractal engine.
+With a cost of 1.443e+24 and a current max balance of 6.1106899999999995e+26 and max cps 8.094666666666665e+21 it was not worth the cost.
+INFO:root:Purchase manager found best value to be building fractal engine.
+With a cost of 1.443e+24 and a current max balance of 6.11666e+26 and max cps 8.094666666666665e+21 it was not worth the cost.
+INFO:root:Purchase manager found best value to be building fractal engine.
+With a cost of 1.443e+24 and a current max balance of 6.1227e+26 and max cps 8.094666666666665e+21 it was not worth the cost.
+INFO:root:Purchase manager found best value to be building fractal engine.
+With a cost of 1.443e+24 and a current max balance of 6.12866e+26 and max cps 8.094666666666665e+21 it was not worth the cost.
+INFO:root:Purchase manager found best value to be building fractal engine.
+With a cost of 1.443e+24 and a current max balance of 6.13442e+26 and max cps 8.094666666666665e+21 it was not worth the cost.
+INFO:root:Purchase manager found best value to be building fractal engine.
+With a cost of 1.443e+24 and a current max balance of 6.184349999999999e+26 and max cps 8.094666666666665e+21 it was not worth the cost.
+INFO:root:Purchase manager found best value to be building fractal engine.
+With a cost of 1.443e+24 and a current max balance of 6.62771e+26 and max cps 8.094666666666665e+21 it was not worth the cost.
+INFO:root:Purchase manager found best value to be building fractal engine.
+With a cost of 1.443e+24 and a current max balance of 6.63359e+26 and max cps 8.094666666666665e+21 it was not worth the cost.
+INFO:root:Purchase manager found best value to be building fractal engine.
+With a cost of 1.443e+24 and a current max balance of 6.63958e+26 and max cps 8.094666666666665e+21 it was not worth the cost.
+INFO:root:Purchase manager found best value to be building fractal engine.
+With a cost of 1.443e+24 and a current max balance of 6.64628e+26 and max cps 8.094666666666665e+21 it was not worth the cost.
+INFO:root:
+2019-03-06 20:22:40.669184: 
+Golden cookies/reinder clicked this run: 6.6366e+26
+Current bank: 7.001000000000001e+21
+Current compensated cps: [] (with active buffs: 22047)
+Bough ['Building: fractal engine.', 'Building: chancemaker.', 'Building: prism.', 'Building: time machine.', 'Building: antimatter condenser.', 'Building: fractal engine.'] this pass.
+
+INFO:root:Purchase manager found best value to be upgrade 0.04.
+With a cost of 4.6549999999999995e+25 and a current max balance of 6.6298e+26 and max cps 4.449e+24 it was not worth the cost.
+INFO:root:Purchase manager found best value to be upgrade 0.04.
+With a cost of 4.6549999999999995e+25 and a current max balance of 6.638519999999999e+26 and max cps 4.449e+24 it was not worth the cost.
+INFO:root:Purchase manager found best value to be upgrade 0.04.
+With a cost of 4.6549999999999995e+25 and a current max balance of 6.64727e+26 and max cps 4.449e+24 it was not worth the cost.
+INFO:root:Purchase manager found best value to be upgrade 0.04.
+With a cost of 4.6549999999999995e+25 and a current max balance of 6.656459999999999e+26 and max cps 4.449e+24 it was not worth the cost.
+INFO:root:Purchase manager found best value to be upgrade 0.04.
+With a cost of 4.6549999999999995e+25 and a current max balance of 6.66619e+26 and max cps 4.449e+24 it was not worth the cost.
+INFO:root:Purchase manager found best value to be upgrade 0.04.
+With a cost of 4.6549999999999995e+25 and a current max balance of 6.674729999999999e+26 and max cps 4.449e+24 it was not worth the cost.
+INFO:root:Purchase manager found best value to be upgrade 0.04.
+With a cost of 4.6549999999999995e+25 and a current max balance of 6.68348e+26 and max cps 4.449e+24 it was not worth the cost.
+INFO:root:Purchase manager found best value to be building antimatter condenser.
+With a cost of 8.518e+21 and a current max balance of 6.70261e+26 and max cps 8.458833333333334e+21 it was not worth the cost.
+INFO:root:Doing a garden check at time: 2019-03-06 20:27:31.941875
+CRITICAL:root:Severe exception: Message: unknown error: Element <div id="productMinigameButton2" class="productButton productMinigameButton lumpsOnly" onclick="Game.ObjectsById[2].switchMinigame(-1);PlaySound(Game.ObjectsById[2].onMinigame?'snd/clickOn.mp3':'snd/clickOff.mp3');" style="display: block;">...</div> is not clickable at point (560, 153). Other element would receive the click: <div id="commentsText" class="commentsText risingUp">...</div>
+  (Session info: chrome=72.0.3626.119)
+  (Driver info: chromedriver=2.46.628402 (536cd7adbad73a3783fdc2cab92ab2ba7ec361e1),platform=Windows NT 10.0.17134 x86_64)
+ was raised
+INFO:root:Doing a garden check at time: 2019-03-06 20:27:47.705357
+INFO:root:Garden manager found 24 garden tiles.
+INFO:root:Garden manager found %s available plots for planting new seeds.
+INFO:root:
+2019-03-06 20:28:03.302222: 
+Golden cookies/reinder clicked this run: 7.617e+26
+Current bank: 8.530333333333333e+21
+Current compensated cps: ['frenzy'] (with active buffs: 24731)
+Bough ['Building: chancemaker.', 'Building: prism.', 'Building: time machine.', 'Building: antimatter condenser.', 'Building: fractal engine.', 'Building: chancemaker.', 'Building: prism.', 'Building: time machine.', 'Building: antimatter condenser.', 'Building: fractal engine.', 'Building: chancemaker.', 'Building: prism.', 'Building: time machine.', 'Building: antimatter condenser.', 'Building: fractal engine.', 'Building: chancemaker.', 'Building: prism.', 'Building: time machine.', 'Building: antimatter condenser.', 'Building: fractal engine.', 'Building: chancemaker.', 'Building: prism.'] this pass.
+
+INFO:root:Purchase manager found best value to be upgrade 0.04.
+With a cost of 4.6549999999999995e+25 and a current max balance of 8.059529999999999e+26 and max cps 3.75e+23 it was not worth the cost.
+INFO:root:Purchase manager found best value to be upgrade 0.04.
+With a cost of 46549999999999994736148480.00 and a current max balance of 806154999999999902543249408.00 and max cps 374999999999999993708544.00 it was not worth the cost.
+CRITICAL:root:Severe exception: Message: stale element reference: element is not attached to the page document
+  (Session info: chrome=72.0.3626.119)
+  (Driver info: chromedriver=2.46.628402 (536cd7adbad73a3783fdc2cab92ab2ba7ec361e1),platform=Windows NT 10.0.17134 x86_64)
+ was raised
+INFO:root:Doing a garden check at time: 2019-03-06 20:32:04.365551
+INFO:root:Garden manager found 24 garden tiles.
+INFO:root:Garden manager found 0 available plots for planting new seeds.
+INFO:root:
+2019-03-06 20:32:16.976006: 
+Golden cookies/reinder clicked this run: 0
+Current bank: 806356999999999895391961088.00
+Current compensated cps: 7500000000000000000000.00 (with active buffs: [])
+Current heavenly chips: 26085Bough ['Building: time machine.', 'Building: antimatter condenser.'] this pass.
+
+CRITICAL:root:Severe exception: Message: element not interactable
+  (Session info: chrome=72.0.3626.119)
+  (Driver info: chromedriver=2.46.628402 (536cd7adbad73a3783fdc2cab92ab2ba7ec361e1),platform=Windows NT 10.0.17134 x86_64)
+ was raised
+INFO:root:Purchase manager found best value to be building fractal engine.
+With a cost of 8881000000000000325058560.00 and a current max balance of 744844000000000043494932480.00 and max cps 9403666666666665705472.00 it was not worth the cost.
+CRITICAL:root:Severe exception: Message: element not interactable
+  (Session info: chrome=72.0.3626.119)
+  (Driver info: chromedriver=2.46.628402 (536cd7adbad73a3783fdc2cab92ab2ba7ec361e1),platform=Windows NT 10.0.17134 x86_64)
+ was raised
+INFO:root:Purchase manager found best value to be building fractal engine.
+With a cost of 8881000000000000325058560.00 and a current max balance of 745553000000000036765171712.00 and max cps 9403666666666665705472.00 it was not worth the cost.
+CRITICAL:root:Severe exception: Message: element not interactable
+  (Session info: chrome=72.0.3626.119)
+  (Driver info: chromedriver=2.46.628402 (536cd7adbad73a3783fdc2cab92ab2ba7ec361e1),platform=Windows NT 10.0.17134 x86_64)
+ was raised
+INFO:root:Purchase manager found best value to be building fractal engine.
+With a cost of 8881000000000000325058560.00 and a current max balance of 746248999999999945446785024.00 and max cps 9403666666666665705472.00 it was not worth the cost.

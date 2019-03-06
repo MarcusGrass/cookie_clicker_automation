@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 class TimeCoordinator(object):
     def __init__(self):
         self.last_save_time = datetime.now()
-        self.last_garden_plant_time = datetime.now() - timedelta(seconds=4*3600 + 1)
+        self.last_garden_plant_time = datetime.now() - timedelta(seconds=10*60 + 1)
         self.last_economy_report = datetime.now() - timedelta(seconds=301)
 
     def time_to_save(self):
@@ -13,7 +13,7 @@ class TimeCoordinator(object):
         return False
 
     def time_to_plant_seeds(self):
-        if (datetime.now() - self.last_garden_plant_time).seconds > 4*3600:
+        if (datetime.now() - self.last_garden_plant_time).seconds > 10*60:
             return True
         return False
 

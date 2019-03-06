@@ -1,6 +1,9 @@
 import time
+from datetime import datetime
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.common.exceptions import NoSuchElementException
+
+import logging
 
 
 class GardenManager(object):
@@ -12,6 +15,7 @@ class GardenManager(object):
         self.available_plots = list()
 
     def manage_garden(self):
+        logging.info("Doing a garden check at time: %s" % datetime.now())
         self.toggle_garden("view")
         self.make_sure_right_soil_selected()
         self.get_all_empty_available_garden_plots()
@@ -48,12 +52,14 @@ class GardenManager(object):
             "//div[contains(@class,'gardenTile') and "
             "contains(@style,'display: block;')]"
         )
+        logging.info("Garden manager found %s garden tiles." % len(available_plots))
         for element in available_plots:
             try:
                 element.find_element_by_xpath("./div[contains(@style, 'display:none;')]")
                 self.available_plots.append(element)
             except NoSuchElementException:
                 pass
+        logging.info("Garden manager found %s available plots for planting new seeds." % len(self.available_plots))
 
     def plant_seeds(self):
         seed_element = self.driver.find_element_by_xpath("//div[@id='gardenSeed-0']")
