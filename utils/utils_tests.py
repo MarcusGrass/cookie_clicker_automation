@@ -1,5 +1,6 @@
 import unittest
 from utils.optimal_calculations import *
+from utils.dto import *
 
 
 class TestOptimalCalculations(unittest.TestCase):
@@ -21,6 +22,18 @@ class TestOptimalCalculations(unittest.TestCase):
         purchase_cost = 10.2*1e+18
 
         self.assertTrue(5e+19 < calculate_min_value_for_purchase(current_cps, purchase_cost) < 6e+19)
+
+    def test_hourly_report(self):
+        report = HourlyReport(5, 1, 15)
+        report.calculate_hourly_report_stats(10, 3, 30)
+
+        self.assertEqual(report.delta_balance, 5)
+        self.assertEqual(report.delta_cps, 2)
+        self.assertEqual(report.delta_hc, 15)
+
+        self.assertEqual(100, report.balance_increase)
+        self.assertEqual(200, report.cps_increase)
+        self.assertEqual(100, report.hc_increase)
 
 
 if __name__ == "__main__":

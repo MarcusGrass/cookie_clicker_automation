@@ -14,6 +14,10 @@ from utils.dto import *
 from purchase_manager import PurchaseManager
 from garden_manager import GardenManager
 from time_coordinator import TimeCoordinator
+from graphing.graphing import Grapher
+
+from logger_classes.loggers import LoggingCollector
+
 URL = "http://orteil.dashnet.org/cookieclicker/"
 CONSENT_COOKIE = {
     "name": "cookieconsent_dismissed",
@@ -27,11 +31,18 @@ PREFS = {
 options = Options()
 options.add_experimental_option("prefs", PREFS)
 
+START_PRESTIGE = 93878
+
+LOGGING_NAMES = ["info", "warning", "critical"]
+LOGGING_LEVELS = [logging.INFO, logging.WARNING, logging.CRITICAL]
+
 
 class CookieClickerAutomator(object):
     def __init__(self):
         self.gamestate_file = None
         self.driver = WebDriver(chrome_options=options)
+        self.driver.set_window_position(0, 0)
+        self.driver.set_window_size(1440, 830)
         self.prefs_button = None
         self.cps_compensator = 1
         self.next_is_clot = False
@@ -42,10 +53,13 @@ class CookieClickerAutomator(object):
         self.ascension_number = 0
         self.buffs = list()
         self.bought_this_run = list()
+        self.hourly_report = None
+        self.first_hourly_logging_done = False
 
         self.time_coordinator = TimeCoordinator()
-        logging.basicConfig(filename='D:\\Program\\PycharmProjects\\seleniumtest\\logs\\cookieclicker.log',
-                            level=logging.INFO)
+        self.lc = LoggingCollector()
+        self.grapher = None
+        self.grapher_initialized = False
 
     def __del__(self):
         self.driver.close()
@@ -73,51 +87,74 @@ class CookieClickerAutomator(object):
                         time.sleep(0.2)
                         file_handler = SaveFileHandler()
                         file_handler.clean_up_directory()
-                    elif self.time_coordinator.time_to_plant_seeds():
+                    elif self.time_coordinator.time_to_plant_seeds() and self.cps_compensator == 1:
                         self.close_popup_boxes()
-                        garden_manager = GardenManager(self.driver)
+                        garden_manager = GardenManager(self.driver, self.lc)
                         garden_manager.manage_garden()
                         del garden_manager
                         self.time_coordinator.last_garden_plant_time = datetime.datetime.now()
 
-                    elif self.time_coordinator.time_to_log_economy():
-                        self.check_ascension_levels()
+                    self.check_ascension_levels()
+                    if self.grapher_initialized is False:
+                        self.grapher = Grapher(self.ascension_number, self.lc)
+                        self.grapher_initialized = True
+                    else:
+                        self.grapher.update_and_draw(self.ascension_number)
+
+                    if self.time_coordinator.time_to_log_economy():
                         print()
                         print("%s:" % datetime.datetime.now())
                         print("Golden cookies/reindeer clicked this run: %s" % self.golden_cookie_clicks)
-                        print("Current bank: %.2f" % self.current_balance.amount)
-                        print("Current compensated cps: %.2f (with active buffs: %s)" %
+                        print("Current bank: %.2E" % self.current_balance.amount)
+                        print("Current compensated cps: %.2E (with active buffs: %s)" %
                               (self.current_balance.cps, self.buffs))
                         print("Current heavenly chips: %s" % self.ascension_number)
                         print("Bought %s this pass." % self.bought_this_run)
                         print()
-                        logging.info("\n%s: \nGolden cookies/reinder clicked this run: %s\n"
-                                     "Current bank: %.2f\nCurrent compensated cps: %.2f (with active buffs: %s)\n"
-                                     "Current heavenly chips: %s"
-                                     "Bough %s this pass.\n" % (datetime.datetime.now(), self.golden_cookie_clicks,
-                                                                self.current_balance.amount,
-                                                                self.current_balance.cps, self.buffs,
-                                                                self.ascension_number, self.bought_this_run))
+                        self.lc.warn("\n\n\n%s: \nGolden cookies/reinder clicked this run: %s\n"
+                                     "Current bank: %.2E\nCurrent compensated cps: %.2E (with active buffs: %s)\n"
+                                     "Current heavenly chips: %s\n"
+                                     "Bought %s this pass.\n\n" % (datetime.datetime.now(), self.golden_cookie_clicks,
+                                                                   self.current_balance.amount,
+                                                                   self.current_balance.cps, self.buffs,
+                                                                   self.ascension_number, self.bought_this_run))
                         self.bought_this_run = list()
                         self.time_coordinator.last_economy_report = datetime.datetime.now()
+                    if self.time_coordinator.time_for_hourly_report() and self.cps_compensator != 50:
+                        self.check_ascension_levels()
+                        if self.first_hourly_logging_done is False:
+                            self.hourly_report = HourlyReport(self.current_balance.amount, self.current_balance.cps,
+                                                              self.ascension_number)
+                            self.first_hourly_logging_done = True
+                            self.lc.warn("\n\nFIRST HOURLY LOGGING SET TO %s with:\n"
+                                         "  - amount         = %.2E\n"
+                                         "  - cps            = %.2E\n"
+                                         "  - heavenly chips = %.2E\n\n" % (self.first_hourly_logging_done,
+                                                                            self.current_balance.amount,
+                                                                            self.current_balance.cps,
+                                                                            self.ascension_number))
+                        else:
+                            self.give_hourly_report()
+                        self.time_coordinator.last_hourly_report = datetime.datetime.now()
                     num_tries = 0
                 except WebDriverException as e:
                     time.sleep(1)
                     num_tries += 1
                     self.close_popup_boxes()
-                    logging.critical("Severe exception: %s was raised" % e)
+                    self.lc.critical("Severe exception: %s was raised" % e)
                     time.sleep(1)
                     if num_tries % 4 == 0:
-                        logging.critical("After four failed attempts reload is initialized.")
+                        self.lc.critical("After four failed attempts reload is initialized.")
                         try:
                             self.save_game()
                         except Exception as e:
-                            logging.critical("Failed to save,reloading anyway, exception: %s" % e)
+                            self.lc.critical("Failed to save,reloading anyway, exception: %s" % e)
                         time.sleep(1)
                         self.load_game()
                     continue
 
-        except Exception:
+        except Exception as e:
+            self.lc.critical(e)
             raise
         finally:
             self.save_game()
@@ -201,6 +238,7 @@ class CookieClickerAutomator(object):
 
                 buffs = self.check_buffs()
                 if "clot" in buffs:
+                    self.lc.critical("Got clot buff when casting conjure.")
                     self.load_game()
                     self.next_is_clot = True
 
@@ -238,10 +276,12 @@ class CookieClickerAutomator(object):
     def set_buff_multiplier(self, buffs):
         if len(buffs) == 0:
             self.cps_compensator = 1
+        elif len(buffs) == 1 and "clot" in buffs:
+            self.cps_compensator = 2
         elif len(buffs) == 1 and "frenzy" in buffs and "clot" not in buffs:
-            self.cps_compensator = 1/6
+            self.cps_compensator = 1 / 7
         elif len(buffs) == 2 and "frenzy" in buffs and "clot" in buffs:
-            self.cps_compensator = 1/3
+            self.cps_compensator = 1 / 3.5
         else:
             self.cps_compensator = 50
 
@@ -284,7 +324,7 @@ class CookieClickerAutomator(object):
     def purchase_best_value_product(self):
         time.sleep(0.5)
         self.set_current_balance()
-        purchase_manager = PurchaseManager(self.driver, self.current_balance)
+        purchase_manager = PurchaseManager(self.driver, self.current_balance, self.lc)
         bought_item = purchase_manager.purchase_best_value_option()
         if bought_item != "":
             self.bought_this_run.append(bought_item)
@@ -305,7 +345,12 @@ class CookieClickerAutomator(object):
 
     def check_ascension_levels(self):
         ascension_text = self.driver.find_element_by_xpath("//div[@id='ascendNumber']").text
-        self.ascension_number = re.sub("[^0-9]", "", ascension_text)
+        self.ascension_number = int(re.sub("[^0-9]", "", ascension_text))
+        total_asc = int(START_PRESTIGE) + int(self.ascension_number)
+        if str(total_asc)[-3:] == "777":
+            print("FOUND 777!")
+            self.lc.critical("FOUND 777 PERFECT PRESTIGE TIME! at %s" % datetime.datetime.now())
+            self.save_game()
 
     def load_game(self, custom_file=False):
         if custom_file:
@@ -330,6 +375,25 @@ class CookieClickerAutomator(object):
         time.sleep(1)
         self.prefs_button.click()
         time.sleep(0.5)
+
+    def give_hourly_report(self):
+        self.hourly_report.calculate_hourly_report_stats(self.current_balance.amount, self.current_balance.cps,
+                                                         self.ascension_number)
+        self.lc.warn("\n\n       HOURLY REPORT AT: %s\n"
+                     "Deltas: \n"
+                     "  - Delta balance           = +%.2E\n"
+                     "  - Delta cps               = +%.2E\n"
+                     "  - Delta heavenly chips    = +%.2E\n"
+                     "Percentages: \n"
+                     "  - Balance increase        = %.2f%%\n"
+                     "  - Cps increase            = %.2f%%\n"
+                     "  - Heavenly chips increase = %.2f%%\n\n" % (datetime.datetime.now(),
+                                                                   self.hourly_report.delta_balance,
+                                                                   self.hourly_report.delta_cps,
+                                                                   self.hourly_report.delta_hc,
+                                                                   self.hourly_report.balance_increase,
+                                                                   self.hourly_report.cps_increase,
+                                                                   int(self.hourly_report.hc_increase)))
 
     def set_prefs_button(self):
         self.prefs_button = self.driver.find_element_by_id("prefsButton")

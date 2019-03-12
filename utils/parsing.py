@@ -24,6 +24,20 @@ def translate_word_to_multiplier(text):
         multiplier = 1e+27
     elif text == "nonillion":
         multiplier = 1e+30
+    elif text == "decillion":
+        multiplier = 1e+33
+    elif text == "undecillion":
+        multiplier = 1e+36
+    elif text == "duodecillion":
+        multiplier = 1e+39
+    elif text == "tredecillion":
+        multiplier = 1e+42
+    elif text == "quattuordecillion":
+        multiplier = 1e+45
+    elif text == "quindecillion":
+        multiplier = 1e+48
+    elif text == "sexdecillion":
+        multiplier = 1e+51
 
     return multiplier
 

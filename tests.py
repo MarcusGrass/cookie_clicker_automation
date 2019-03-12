@@ -1,7 +1,5 @@
 import unittest
 from cookie_clicker_automation import CookieClickerAutomator
-from purchase_manager import PurchaseManager
-from garden_manager import GardenManager
 
 
 class ElementReadingTests(unittest.TestCase):
@@ -33,7 +31,7 @@ class ElementReadingTests(unittest.TestCase):
     
     def test_reload(self):
         self.automator.load_game()
-    """
+    
     def test_managing_garden(self):
         self.automator.check_ascension_levels()
         print(self.automator.ascension_number)
@@ -41,6 +39,7 @@ class ElementReadingTests(unittest.TestCase):
         garden_manager.manage_garden()
         garden_manager = GardenManager(self.automator.driver)
         garden_manager.manage_garden()
+    """
 
 
 if __name__ == "__main__":

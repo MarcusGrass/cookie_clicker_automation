@@ -42,7 +42,7 @@ class SaveFileHandler(object):
 
     def clean_up_directory(self):
         save_files = os.listdir(self.save_file_path)
-        if len(save_files) > 80:
+        if len(save_files) > 20:
             latest_file_number = self.get_higest_save_file_number()
             file_name = get_file_name_from_number(latest_file_number)
             files_to_keep = [

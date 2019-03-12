@@ -3,7 +3,7 @@ def get_min_amount_to_cps(cps):
     return optimal
 
 
-def get_best_value_product(product_list):
+def get_best_value_product(product_list, current_cps):
     best_value = 0
     best_ind = 0
     for ind in range(len(product_list)):
@@ -15,6 +15,12 @@ def get_best_value_product(product_list):
 
 def calculate_min_value_for_purchase(current_cps, purchase_cost):
     return purchase_cost + get_min_amount_to_cps(current_cps)
+
+
+def worth_waiting_for(cost, cps):
+    if cost < get_min_amount_to_cps(cps) * 20:
+        return True
+    return False
 
 
 if __name__ == "__main__":

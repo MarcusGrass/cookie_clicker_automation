@@ -1,5 +1,4 @@
 import time
-import logging
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.common.exceptions import NoSuchElementException, StaleElementReferenceException
 
@@ -9,13 +8,14 @@ from utils.optimal_calculations import *
 
 
 class PurchaseManager(object):
-    def __init__(self, driver, current_balance):
+    def __init__(self, driver, current_balance, lc):
         self.driver = driver
         self.current_balance = current_balance
         self.buildings = list()
         self.upgrades = list()
         self.cheap_upgrade_elements = list()
         self.bought = str()
+        self.lc = lc
 
     def purchase_best_value_option(self):
         self.inspect_buildings()
@@ -60,7 +60,8 @@ class PurchaseManager(object):
                     building_list.append(Building(name, num_cost, num_cps, element))
                     num_tries = 0
                 except Exception as e:
-                    if isinstance(e, StaleElementReferenceException) or isinstance(e, NoSuchElementException):
+                    if isinstance(e, StaleElementReferenceException) or isinstance(e, NoSuchElementException)\
+                            or isinstance(e, IndexError):
                         time.sleep(0.1)
                         num_tries += 1
                         continue
@@ -99,9 +100,9 @@ class PurchaseManager(object):
                     descriptor = parse_upgrade_description(raw_description)
                     if clean_cost < self.current_balance.cps * 30 and clean_cost < self.current_balance.amount / 25:
                         self.cheap_upgrade_elements.append(element)
-                        logging.info("Found cheap upgrade element with text: %s\n"
-                                     "its cost was %.2f and the current cps was %.2f" % (element.text, clean_cost,
-                                                                                         self.current_balance.cps))
+                        self.lc.debug("Found cheap upgrade element with text: %s\n"
+                                      "its cost was %.2E and the current cps was %.2E" % (element.text, clean_cost,
+                                                                                          self.current_balance.cps))
                         break
                     elif descriptor != "unknown upgrade":
                         upgrade_list.append(Upgrade(descriptor, clean_cost, element))
@@ -143,7 +144,7 @@ class PurchaseManager(object):
             else:
                 ind += 1
 
-        return get_best_value_product(combined_list)
+        return get_best_value_product(combined_list, self.current_balance.cps)
 
     def purchase_best_value_product(self):
         self.pre_process_unbought_buildings()
@@ -161,15 +162,15 @@ class PurchaseManager(object):
                 raise Exception("Best value option is neither a building nor an upgrade.")
         else:
             if type(best_value) == Upgrade:
-                logging.info("Purchase manager found best value to be upgrade %s.\n"
-                             "With a cost of %.2f and a current max balance of %.2f and max cps %.2f "
-                             "it was not worth the cost." % (best_value.upgrade_type, best_value.cost,
-                                                             self.current_balance.amount, self.current_balance.cps))
+                self.lc.debug("Purchase manager found best value to be upgrade %s.\n"
+                              "With a cost of %.2E and a current max balance of %.2E and max cps %.2E "
+                              "it was not worth the cost." % (best_value.upgrade_type, best_value.cost,
+                                                              self.current_balance.amount, self.current_balance.cps))
             elif type(best_value) == Building:
-                logging.info("Purchase manager found best value to be building %s.\n"
-                             "With a cost of %.2f and a current max balance of %.2f and max cps %.2f "
-                             "it was not worth the cost." % (best_value.name, best_value.cost,
-                                                             self.current_balance.amount, self.current_balance.cps))
+                self.lc.debug("Purchase manager found best value to be building %s.\n"
+                              "With a cost of %.2E and a current max balance of %.2E and max cps %.2E "
+                              "it was not worth the cost." % (best_value.name, best_value.cost,
+                                                              self.current_balance.amount, self.current_balance.cps))
         time.sleep(0.3)
 
     def purchase_upgrade(self, upgrade):
