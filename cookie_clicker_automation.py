@@ -11,6 +11,7 @@ import logging
 from utils.filehandler import SaveFileHandler
 from utils.parsing import *
 from utils.dto import *
+from utils.optimal_calculations import get_min_amount_to_cps
 from purchase_manager import PurchaseManager
 from garden_manager import GardenManager
 from time_coordinator import TimeCoordinator
@@ -30,8 +31,6 @@ PREFS = {
 }
 options = Options()
 options.add_experimental_option("prefs", PREFS)
-
-START_PRESTIGE = 93878
 
 LOGGING_NAMES = ["info", "warning", "critical"]
 LOGGING_LEVELS = [logging.INFO, logging.WARNING, logging.CRITICAL]
@@ -87,19 +86,23 @@ class CookieClickerAutomator(object):
                         time.sleep(0.2)
                         file_handler = SaveFileHandler()
                         file_handler.clean_up_directory()
-                    elif self.time_coordinator.time_to_plant_seeds() and self.cps_compensator == 1:
-                        self.close_popup_boxes()
-                        garden_manager = GardenManager(self.driver, self.lc)
-                        garden_manager.manage_garden()
-                        del garden_manager
-                        self.time_coordinator.last_garden_plant_time = datetime.datetime.now()
+                    elif self.time_coordinator.time_to_plant_seeds() and (self.cps_compensator == 1 or
+                                                                          self.cps_compensator == 2):
+                        if get_min_amount_to_cps(self.current_balance.cps) < self.current_balance.amount:
+                            self.close_popup_boxes()
+                            garden_manager = GardenManager(self.driver, self.lc)
+                            garden_manager.manage_garden()
+                            del garden_manager
+                            self.time_coordinator.last_garden_plant_time = datetime.datetime.now()
 
                     self.check_ascension_levels()
                     if self.grapher_initialized is False:
-                        self.grapher = Grapher(self.ascension_number, self.lc)
+                        self.grapher = Grapher(self.ascension_number, self.current_balance,
+                                               self.cps_compensator, self.lc)
                         self.grapher_initialized = True
                     else:
-                        self.grapher.update_and_draw(self.ascension_number)
+                        self.grapher.update_and_draw(self.ascension_number, self.current_balance,
+                                                     self.cps_compensator)
 
                     if self.time_coordinator.time_to_log_economy():
                         print()
@@ -137,6 +140,7 @@ class CookieClickerAutomator(object):
                             self.give_hourly_report()
                         self.time_coordinator.last_hourly_report = datetime.datetime.now()
                     num_tries = 0
+                    self.click_shimmers_if_exists()
                 except WebDriverException as e:
                     time.sleep(1)
                     num_tries += 1
@@ -346,11 +350,6 @@ class CookieClickerAutomator(object):
     def check_ascension_levels(self):
         ascension_text = self.driver.find_element_by_xpath("//div[@id='ascendNumber']").text
         self.ascension_number = int(re.sub("[^0-9]", "", ascension_text))
-        total_asc = int(START_PRESTIGE) + int(self.ascension_number)
-        if str(total_asc)[-3:] == "777":
-            print("FOUND 777!")
-            self.lc.critical("FOUND 777 PERFECT PRESTIGE TIME! at %s" % datetime.datetime.now())
-            self.save_game()
 
     def load_game(self, custom_file=False):
         if custom_file:
@@ -410,5 +409,20 @@ class CookieClickerAutomator(object):
 
 
 if __name__ == "__main__":
-    cka = CookieClickerAutomator()
-    cka.run()
+    max_restarts = 3
+    num_restarts = 0
+    while num_restarts < max_restarts:
+        try:
+            cka = CookieClickerAutomator()
+            cka.run()
+        except Exception as e:
+            print("CATASTROPHIC FAILURE: '%s', RETRYING." % e)
+            try:
+                del cka
+            except NameError:
+                pass
+            time.sleep(15)
+            num_restarts += 1
+
+
+

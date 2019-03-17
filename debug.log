@@ -8,3 +8,4 @@
 [0303/133736.509:ERROR:exception_snapshot_win.cc(88)] thread ID 26956 not found in process
 [0303/152020.910:ERROR:process_reader_win.cc(123)] NtOpenThread: {Åtkomst nekad} En process har begärt åtkomst till ett objekt, men har inte de rättigheter som krävs. (0xc0000022)
 [0303/152020.910:ERROR:exception_snapshot_win.cc(88)] thread ID 29224 not found in process
+[0315/120447.636:ERROR:prune_crash_reports.cc(34)] PruneCrashReportDatabase: Failed to get pending reports
