@@ -5,8 +5,9 @@ from selenium.common.exceptions import NoSuchElementException, StaleElementRefer
 
 import time
 import datetime
-import re
+import traceback
 import logging
+import re
 
 from utils.filehandler import SaveFileHandler
 from utils.parsing import *
@@ -78,6 +79,7 @@ class CookieClickerAutomator(object):
                     self.purchase_best_value_product()
                     self.click_shimmers_if_exists()
                     self.cast_spell_if_buffed()
+                    # self.cast_spell_if_not_clot()
                     self.click_shimmers_if_exists()
                     if self.time_coordinator.time_to_save():
                         time.sleep(0.1)
@@ -222,9 +224,21 @@ class CookieClickerAutomator(object):
         toggle_button.click()
         time.sleep(0.5)
 
+    def cast_spell_if_not_clot(self):
+        buffs = self.check_buffs()
+        no_clot = True
+        for buff in buffs:
+            if "clot" not in buff:
+                no_clot = False
+        if no_clot:
+            mana = self.check_mana()
+            time.sleep(0.2)
+            if mana >= 7:
+                self.cast_conjure_goods()
+
     def cast_spell_if_buffed(self):
         buffs = self.check_buffs()
-        time.sleep(0.2)
+        time.sleep(0.1)
         frenzy_in_buffs = False
         for buff in buffs:
             if "frenzy" in buff:
@@ -233,12 +247,13 @@ class CookieClickerAutomator(object):
                 frenzy_in_buffs = False
                 break
         if frenzy_in_buffs and self.next_is_clot is False:
-            mana = self.check_mana()
+            actual, max_mana = self.check_mana()
             time.sleep(0.2)
-            if mana >= 6:
+            if actual >= int(round(max_mana*0.95)):
                 self.save_game()
 
                 self.cast_conjure_goods()
+                self.lc.critical("Cast conjure with %s/%s mana at: %s" % (actual, max_mana, datetime.datetime.now()))
 
                 buffs = self.check_buffs()
                 if "clot" in buffs:
@@ -247,13 +262,13 @@ class CookieClickerAutomator(object):
                     self.next_is_clot = True
 
         elif frenzy_in_buffs is False and self.next_is_clot:
-            mana = self.check_mana()
+            actual, max_mana = self.check_mana()
             time.sleep(0.2)
-            if mana >= 6:
+            if actual >= int(round(max_mana*0.95)):
                 self.cast_conjure_goods()
                 self.next_is_clot = False
                 self.close_popup_boxes()
-        time.sleep(0.2)
+        time.sleep(0.1)
 
     def check_buffs(self):
         buffs = self.driver.find_elements_by_class_name("pieTimer")
@@ -417,6 +432,7 @@ if __name__ == "__main__":
             cka.run()
         except Exception as e:
             print("CATASTROPHIC FAILURE: '%s', RETRYING." % e)
+            traceback.print_exc()
             try:
                 del cka
             except NameError:

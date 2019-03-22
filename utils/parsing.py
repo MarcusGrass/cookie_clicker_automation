@@ -1,3 +1,4 @@
+
 def translate_text_to_number(number, text):
     number = float(number)
     multiplier = translate_word_to_multiplier(text)
@@ -85,7 +86,9 @@ def parse_upgrade_description(description_string):
 
 
 def parse_mana_string(mana_string):
-    return int(mana_string[0])
+    actual = int(mana_string[:mana_string.find("/")])
+    max_mana = int(mana_string[mana_string.find("/") + 1: mana_string.find(" ")])
+    return actual, max_mana
 
 
 def parse_buff_text(buff_text):

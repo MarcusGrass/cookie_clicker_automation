@@ -27,7 +27,7 @@ class PurchaseManager(object):
         return self.bought
 
     def inspect_buildings(self):
-        building_elements = self.driver.find_elements_by_css_selector(".product.unlocked.enabled")
+        building_elements = self.driver.find_elements_by_css_selector(".product.unlocked")
         building_list = list()
         max_tries = 10
         num_tries = 0
@@ -43,7 +43,7 @@ class PurchaseManager(object):
                     action.perform()
 
                     raw_cost = self.driver.find_element_by_xpath(
-                        "//div[@style='float:right;text-align:right;']"
+                        "//div[@style='float:right;text-align:right;']/span"
                     ).text
                     num_cost = parse_product_cost(raw_cost)
 
@@ -56,12 +56,11 @@ class PurchaseManager(object):
                         num_cps = parse_product_cps(cps)
                     except NoSuchElementException:
                         num_cps = None
-
                     building_list.append(Building(name, num_cost, num_cps, element))
                     num_tries = 0
                 except Exception as e:
                     if isinstance(e, StaleElementReferenceException) or isinstance(e, NoSuchElementException)\
-                            or isinstance(e, IndexError):
+                            or isinstance(e, ValueError):
                         time.sleep(0.1)
                         num_tries += 1
                         continue
@@ -143,15 +142,21 @@ class PurchaseManager(object):
                 combined_list.pop(ind)
             else:
                 ind += 1
-
-        return get_best_value_product(combined_list, self.current_balance.cps)
+        best_value = get_best_value_product(combined_list, self.current_balance.cps)
+        if type(best_value) == Building:
+            self.lc.debug("\n BEST VALUE FOUND WAS BUILDING: %s at cost %.2E\n" % (best_value.name, best_value.cost))
+        else:
+            self.lc.debug("\n BEST VALUE FOUND WAS UPGRADE: %s at cost %.2E\n" % (best_value.upgrade_type, best_value.cost))
+        return best_value
 
     def purchase_best_value_product(self):
         self.pre_process_unbought_buildings()
         best_value = self.get_best_value_purchase()
         if self.current_balance.amount > calculate_min_value_for_purchase(
                 self.current_balance.cps, best_value.cost):
-
+            self.lc.warn("Purchasing %.2E with Bank %.2E and min value for purchase %.2E" %
+                         (best_value.cost, self.current_balance.amount,
+                          calculate_min_value_for_purchase(self.current_balance.cps, best_value.cost)))
             if type(best_value) == Upgrade:
                 self.purchase_upgrade(best_value)
                 self.bought = "Upgrade: %s." % best_value.upgrade_type
