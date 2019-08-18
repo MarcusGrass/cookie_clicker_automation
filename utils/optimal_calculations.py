@@ -1,5 +1,5 @@
 def get_min_amount_to_cps(cps):
-    optimal = cps*7*1800/0.15
+    optimal = cps*7*1800/(0.03*0.6) + 675*cps
     return optimal
 
 

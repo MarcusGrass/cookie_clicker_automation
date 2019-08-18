@@ -61,7 +61,7 @@ class GardenManager(object):
         self.lc.debug("Garden manager found %s available plots for planting new seeds." % len(self.available_plots))
 
     def plant_seeds(self):
-        seed_element = self.driver.find_element_by_xpath("//div[@id='gardenSeed-0']")
+        seed_element = self.driver.find_element_by_xpath("//div[@id='gardenSeed-14']")
         for empty_plot in self.available_plots:
             actions = ActionChains(self.driver)
             actions.move_to_element(seed_element)

@@ -72,15 +72,20 @@ class CookieClickerAutomator(object):
             max_tries = 10
             while max_tries > num_tries:
                 try:
-                    time.sleep(0.6)
+                    time.sleep(0.2)
                     self.click_shimmers_if_exists()
+                    self.click_cookie()
                     self.close_popup_boxes()
                     self.click_shimmers_if_exists()
+                    self.click_cookie()
                     self.purchase_best_value_product()
                     self.click_shimmers_if_exists()
-                    self.cast_spell_if_buffed()
+                    self.click_cookie()
+                    # self.cast_spell_if_buffed()
                     # self.cast_spell_if_not_clot()
                     self.click_shimmers_if_exists()
+                    self.click_cookie()
+                    self.set_current_balance()
                     if self.time_coordinator.time_to_save():
                         time.sleep(0.1)
                         self.save_game()
@@ -90,6 +95,7 @@ class CookieClickerAutomator(object):
                         file_handler.clean_up_directory()
                     elif self.time_coordinator.time_to_plant_seeds() and (self.cps_compensator == 1 or
                                                                           self.cps_compensator == 2):
+
                         if get_min_amount_to_cps(self.current_balance.cps) < self.current_balance.amount:
                             self.close_popup_boxes()
                             garden_manager = GardenManager(self.driver, self.lc)
@@ -143,6 +149,7 @@ class CookieClickerAutomator(object):
                         self.time_coordinator.last_hourly_report = datetime.datetime.now()
                     num_tries = 0
                     self.click_shimmers_if_exists()
+                    self.click_cookie()
                 except WebDriverException as e:
                     time.sleep(1)
                     num_tries += 1
@@ -173,6 +180,13 @@ class CookieClickerAutomator(object):
                 element.click()
                 time.sleep(0.2)
                 self.golden_cookie_clicks += 1
+            if len(shimmers) != 0:
+                buffs = self.check_buffs()
+                for buff in buffs:
+                    if "click frenzy" in buff:
+                        for _ in range(50):
+                            self.click_cookie()
+                            time.sleep(0.05)
         except NoSuchElementException:
             pass
 
@@ -356,6 +370,14 @@ class CookieClickerAutomator(object):
         action.move_to_element(self.driver.find_element_by_id("bigCookie"))
         action.perform()
         time.sleep(0.2)
+
+    def click_cookie(self):
+        action = ActionChains(self.driver)
+        action.move_to_element(self.driver.find_element_by_id("bigCookie"))
+        action.perform()
+        for _ in range(100):
+            self.driver.find_element_by_id("bigCookie").click()
+            time.sleep(0.01)
 
     def get_gamestate_file(self):
         file_handler = SaveFileHandler()

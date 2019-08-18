@@ -54,8 +54,11 @@ class PurchaseManager(object):
                     try:
                         cps = self.driver.find_element_by_class_name("data").text
                         num_cps = parse_product_cps(cps)
-                    except NoSuchElementException:
-                        num_cps = None
+                    except Exception as e:
+                        if isinstance(e, NoSuchElementException) or isinstance(e, IndexError):
+                            num_cps = None
+                        else:
+                            raise
                     building_list.append(Building(name, num_cost, num_cps, element))
                     num_tries = 0
                 except Exception as e:
